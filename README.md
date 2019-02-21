@@ -80,26 +80,33 @@ You'll need to read [OSX: About Gatekeeper](https://support.apple.com/en-us/HT20
 
 #### Warning!
 
-**Do not contact Salsalabs Support for help with installing any of this stuff.**  There are tons of very good sites out there that
-you can use for that kind of support.
+**Do not contact Salsalabs Support for help with installing any of this stuff.**  Salsa is not in that business. There are tons of very good sites out there that you can use for help with getting the prequisites installed.
 
 ## installation
 
-This installation works best in a shell environment.  A shell is a program that you type commands into in Linux and MacOSX.  Typically, that's `bash`.  The rough equivalent in Windows is a terminal window.
+This installation works best in a shell environment.  Typically, that's `bash`.  The rough equivalent in Windows is a terminal window.
 
-Commands in this step will be useful mostly for Linux and MacOSX users.  YMMV if you're using Windows.
+Commands in this step will be `bash` commands.  Sorry, but you're on your own if you're using Windows.
 
-1. Create a directory where you'd like the application to live.  We'll use `pytools` in this installation.  Feel free to use any directory that makes sense to you.
+### TL;DR
+
+ ```
+    cd SOMEWHERE
+    git clone https://github.com/salsalabs/classic_pdfs.git
+    python3 -m venv .
+    source ./bin/activate
+    cd classic_pdfs
+    python3 -m pip install --upgrade pip
+    python3 -m pip install -r requirements.txt
+    python3 pages.py --help
+    ```
+### Installation steps
+
+1. Start the shell.  Change to the directory where you want the applicaiton to be stored.
 
     ```
-    mkdir pytools
+    cd SOMEWHERE
     ```
-
-1. Change to that directory.
-
-  ```
-  cd pytools
-  ```
 
 1. Clone the app's repository.  It will end up in a directory named `classic_pdefs`.
 
@@ -123,7 +130,7 @@ Commands in this step will be useful mostly for Linux and MacOSX users.  YMMV if
 
 1. Activate the virtual environment.
 
-**Note: You'll need to do this every time you crate a new shell and want to use the application.***
+**Note: You'll need to do this every time you want to use the application.***
 
   ```
   source ./bin/activate
@@ -143,7 +150,7 @@ Commands in this step will be useful mostly for Linux and MacOSX users.  YMMV if
 Run the application using `python3`.  Use `--help` to see the command-line options.
 
 ```
-cd pytools/classic_pdfs
+cd SOMEWHERE/classic_pdfs
 source ./bin/activate
 python3 pages.py --help
 
