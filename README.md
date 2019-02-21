@@ -53,7 +53,7 @@ images can be found.
     will see the body and the plain structure of the page.  You
     may not see some of the fancy work.
 
-Again, if stuff is missing, then you can always create PDFs manually.
+Again, if stuff is missing, then you can always [use an alternative](#alternatives).
 
 # Installation
 
