@@ -130,7 +130,7 @@ python3 pages.py --help
 
 1. Activate the virtual environment.
 
-**Note: You'll need to do this every time you want to use the application.***
+  **Note: You'll need to do this every time you want to use the application.**
 
   ```
   source ./bin/activate
