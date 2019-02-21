@@ -72,9 +72,11 @@ a copy of the `git` tools on your computer in order to retrieve
 that repository.  Please [click here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) to see a nice article about installing git.
 
 ### wkhtmltopdf
-The application uses `wkhtmltopdf` to convert HTML into PDFs.  [Click here](https://wkhtmltopdf.org/) to download the wkhtmltopdf application. It's a snap to install in Windows or Linux.
+The application uses `wkhtmltopdf` to convert HTML into PDFs.  [Click here](https://wkhtmltopdf.org/) to download the wkhtmltopdf application.
 
-OSX? Not that easy. You'll need to read [OSX: About Gatekeeper](https://support.apple.com/en-us/HT202491). See the section named "How to open an app from a unidentified developer and exempt it from Gatekeeper". Use the instructions on the wkhtmltopdf package file. Right click on the package file and follow the instructions.
+It's a snap to install in Windows or Linux. OSX? Not that easy.
+
+You'll need to read [OSX: About Gatekeeper](https://support.apple.com/en-us/HT202491). See the section named "How to open an app from a unidentified developer and exempt it from Gatekeeper". Use the instructions on the wkhtmltopdf package file. Right click on the package file and follow the instructions.
 
 #### Warning!
 
