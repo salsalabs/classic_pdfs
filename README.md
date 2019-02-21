@@ -259,4 +259,4 @@ For best results, uses the web to look up any problems that you may run into.  S
 
 You can report app-specific issues by using the [Github repository's issues link](https://github.com/salsalabs/classic_pdfs/issues).
 
-Do yourself a favor.  Don't bother Salsalabs Support with questions about this product.  They get surly and tend to bite if you put your fingers into their cages.  Use the link.  We'll get back to you.  Promise.
+Do yourself a favor.  Don't bother Salsalabs Support with questions about this product.  They get surly and tend to bite if you put your fingers into their cages.  Use the "Issues" link.  We'll get back to you.  Promise.
