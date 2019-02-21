@@ -91,15 +91,15 @@ Commands in this step will be `bash` commands.  Sorry, but you're on your own if
 ### TL;DR
 
  ```
-    cd SOMEWHERE
-    git clone https://github.com/salsalabs/classic_pdfs.git
-    python3 -m venv .
-    source ./bin/activate
-    cd classic_pdfs
-    python3 -m pip install --upgrade pip
-    python3 -m pip install -r requirements.txt
-    python3 pages.py --help
-    ```
+cd SOMEWHERE
+git clone https://github.com/salsalabs/classic_pdfs.git
+python3 -m venv .
+source ./bin/activate
+cd classic_pdfs
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
+python3 pages.py --help
+```
 ### Installation steps
 
 1. Start the shell.  Change to the directory where you want the applicaiton to be stored.
