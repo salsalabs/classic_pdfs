@@ -4,27 +4,26 @@ Create PDFs for email blasts and most public-facing pages.
 # Background
 Sometimes, Salsa's clients would like to have PDFs of their email blasts and public-facing pages.  This application creates those PDFs.
 
-## PDFs can be generated for these items
-This application can create PDFs for these items in Salsa Classic.
+## PDFs this application can create
 
-* blind targeted action
-* content_item
-* donate_page
-* email_blast
-* event
-* petition
-* signup_page
-* storefront
-* unsubscribe_page
+* Blind targeted actions
+* Custom content items
+* Donation pages
+* Email blasts
+* Events
+* Petitions
+* Signup pages
+* Storefronts
+* Unsubscribe pages
 
-## PDFs cannot be generated for these items
+## PDFs this application _cannot_ create
 
-* photo_library
-* multi-content targeted actions (MCTA)
-* post_card
-* targeted actions
-* tell_a_friend
-* thank_you
+* Photo library
+* Multi-content targeted actions (MCTA)
+* Post cards
+* Targeted actions
+* Tell-a-friend pages
+* Thank you pages
 
 (Okay, so technically the app can create PDFs for the first page of targeted
 and multi-content targeted actions.  That's the address and ZIP page and is
