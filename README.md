@@ -31,8 +31,10 @@ and multi-content targeted actions.  That's the address and ZIP page and is
 generally not very interesting.  There's not a way to show the second page
 of a Classic targeted action workflow.)
 
-But -- you're not out of luck.  You can view any of these pages and manually
-create PDFs.
+## Alternatives
+
+* The easiest alternative is to visit each of the pages and save/print them as PDF files.
+* Use a PDF generator like [`wkhtmltopdf`](https://wkhtmltopdf.org/) or [`weasyprint`](https://weasyprint.org/) to create PDFs without a browser.
 
 ## Cautions
 
