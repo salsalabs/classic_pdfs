@@ -103,25 +103,21 @@ python3 pages.py --help
 ### Installation steps
 
 1. Start the shell.  Change to the directory where you want the applicaiton to be stored.
-
     ```
     cd SOMEWHERE
     ```
 
 1. Clone the app's repository.  It will end up in a directory named `classic_pdefs`.
-
   ```
   git clone https://github.com/salsalabs/classic_pdfs.git
   ```
 
 1. Change to the newly created directory.
-
   ```
   cd classic_pdfs
   ```
 
 1. Install a virtual environment.  This is really helpful for managing the packages that need to be installed to make this app work.
-
   ```
   python3 -m venv .
   ```
@@ -129,21 +125,18 @@ python3 pages.py --help
 1. Installing a virtual environment creates directories and fills them with useful stuff.  [Please click here](https://docs.python.org/3/library/venv.html) if you'd like to learn more about what gets installed.
 
 1. Activate the virtual environment.
-
-  **Note: You'll need to do this every time you want to use the application.**
-
-  ```
-  source ./bin/activate
-  ```
+    **Note: You'll need to do this every time you want to use the application.**
+```
+source ./bin/activate
+```
 
 1. Install dependencies from the standard Python package repository.
+```
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
+```
 
-  ```
-  python3 -m pip install --upgrade pip
-  python3 -m pip install -r requirements.txt
-  ```
-
-1. Software will be downloaded and installed.  Errors are noisy.  Handle any errors before going to the next step.
+Software will be downloaded and installed.  Errors are noisy.  Handle any errors before going to the next step.
 
 # Execution
 
