@@ -123,7 +123,7 @@ python3 pages.py --help
 
 5. Installing a virtual environment creates directories and fills them with useful stuff.  [Please click here](https://docs.python.org/3/library/venv.html) if you'd like to learn more about what gets installed.
 
-6. Activate the virtual environment. *Note: You'll need to do this every time you run the application.**
+6. Activate the virtual environment. *Note: You'll need to do this every time you run the application.*
 
 ```
 source ./bin/activate
