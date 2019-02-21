@@ -78,7 +78,7 @@ It's a snap to install in Windows or Linux. OSX? Not that easy.
 
 You'll need to read [OSX: About Gatekeeper](https://support.apple.com/en-us/HT202491). See the section named "How to open an app from a unidentified developer and exempt it from Gatekeeper". Use the instructions on the wkhtmltopdf package file. Right click on the package file and follow the instructions.
 
-#### Warning!
+### Warning
 
 **Do not contact Salsalabs Support for help with installing any of this stuff.**  Salsa is not in that business. There are tons of very good sites out there that you can use for help with getting the prequisites installed.
 
