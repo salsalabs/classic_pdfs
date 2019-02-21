@@ -86,16 +86,16 @@ You'll need to read [OSX: About Gatekeeper](https://support.apple.com/en-us/HT20
 
 This installation works best in a shell environment.  Typically, that's `bash`.  The rough equivalent in Windows is a terminal window.
 
-Commands in this step will be `bash` commands.  Sorry, but you're on your own if you're using Windows.
+Commands in this section will be `bash` commands.  Sorry, but you're on your own if you're using Windows.
 
 ### TL;DR
 
  ```
 cd SOMEWHERE
 git clone https://github.com/salsalabs/classic_pdfs.git
+cd classic_pdfs
 python3 -m venv .
 source ./bin/activate
-cd classic_pdfs
 python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
 python3 pages.py --help
