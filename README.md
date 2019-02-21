@@ -2,9 +2,7 @@
 Create PDFs for email blasts and most public-facing pages.
 
 # Background
-Salsa's clients have invested a lot of time and energy into their public-facing
-pages.  Sometimes, clients would like to have PDFs of these pages for their
-reference.  This application creates those PDFs.
+Sometimes, Salsa's clients would like to have PDFs of their email blasts and public-facing pages.  This application creates those PDFs.
 
 ## PDFs can be generated for these items
 This application can create PDFs for these items in Salsa Classic.
