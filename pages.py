@@ -294,7 +294,6 @@ class Main:
 		"""Main authenticates with Salsa and then calls the methods to
 		find and "print" pages."""
 
-		pages = []
 		if self.args.justBlasts:
 			self.specList = [ spec for spec in self.specList if spec.table == "email_blast"]
 		for spec in self.specList:
@@ -307,9 +306,7 @@ class Main:
 					'html': self.args.html,
 					'key': key
 				}
-				page = OnePage(**kwargs)
 				task = OnePage(**kwargs)
-				pages.append(OnePage(**kwargs))
 				task.run()
 def main():
 	pageSpecs = [
