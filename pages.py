@@ -12,6 +12,7 @@ import requests
 import yaml
 
 from bs4 import BeautifulSoup
+from pathlib import Path
 
 # The PDF app, wkhtml2pdf, uses these options to format from HTML,
 # Global to make it easy to make changes.  Used in OnePage.run().
@@ -55,7 +56,8 @@ class OnePage:
 		spec:         instance of Spec
 		salsa:        instance of Salsa
 		key:          primary key for the page
-		dir:          directory to use for storing pdfs
+		pdfs:         directory to use for storing pdfs
+		html:	      directory to use for storing htmls
 		"""
 
 		self.__dict__.update(kwargs)
@@ -73,14 +75,26 @@ class OnePage:
 	def assureDir(self, filename):
 		""" Make sure that the directory exists for the provided filename. """
 
-		d = os.path.dirname(filename)
-		if not os.path.exists(d):
+		d = Path(filename).parent
+		if not d.exists():
 			try:
-				os.makedirs(d)
+				os.makedirs(str(d))
 			except FileExistsError:
 				pass
 
-	def getFilename(self, record):
+	def getHtmlFilename(self, record):
+		"""Fabricate a filename using the page spec and a record
+		from the API.  The filename should end up containing a date,
+		a primary key and the page title or blast subject."""
+		return self.getFilename(self.html, record, '.html')
+
+	def getPdfFilename(self, record):
+		"""Fabricate a filename using the page spec and a record
+		from the API.  The filename should end up containing a date,
+		a primary key and the page title or blast subject."""
+		return self.getFilename(self.pdfs, record, 'pdf')
+
+	def getFilename(self, dir, record, ext):
 		"""Fabricate a filename using the page spec and a record
 		from the API.  The filename should end up containing a date,
 		a primary key and the page title or blast subject."""
@@ -93,8 +107,8 @@ class OnePage:
 				k = f" {self.key}"
 		pattern = re.compile("[^A-Za-z0-9\\s]")
 		x = pattern.sub('', record[self.spec.titleField], 0)
-		x = os.path.join(self.dir, self.spec.table, f"{date}{k} {x}.pdf")
-		return x
+		x = Path(dir).joinpath(self.spec.table, f"{date}{k} {x}.{ext}")
+		return str(x)
 
 	def parse_date(self, x):
 		"""Parse Salsa Classic date into a datetime.
@@ -113,10 +127,12 @@ class OnePage:
 
 		record = self.salsa.getRecord(self.spec, self.key)
 		print(self.url)
-		f = self.getFilename(record)
-		if os.path.isfile(f):
+		pdf = self.getPdfFilename(record)
+		if os.path.isfile(pdf):
 			print(f"{self.url} skipped")
 			return
+		self.assureDir(pdf)
+
 		resp = requests.get(self.url)
 		soup = BeautifulSoup(resp.text, 'html.parser')
 		links = soup.select('a,link,img,script')
@@ -127,7 +143,12 @@ class OnePage:
 					x = self.scrub(v)
 					if x != v:
 						link.attrs[k] = x
-		self.assureDir(f)
+		
+		html = self.getHtmlFilename(record)
+		self.assureDir(html)
+		with open(html, 'w') as f:
+			f.write(str(soup))
+			f.close()
 		try:
 			pdfkit.from_string(str(soup), f, wkhtml2pdfOptions)
 		except:
@@ -255,8 +276,10 @@ class Main:
 		parser = argparse.ArgumentParser(description='Find public facing pages and write them as PDFs')
 		parser.add_argument('--login', dest='loginFile', action='store',
 									help='YAML file with login credentials')
-		parser.add_argument('--dir', dest='dir', action="store", default="./pdfs",
-									help="directory to store PDFs.  Created as needed")
+		parser.add_argument('--pdfs', dest='pdfs', action="store", default="./pdfs",
+									help="directory to store PDFs.  Created as needed.")
+		parser.add_argument('--html', dest='html', action="store", default="./html",
+									help="directory to store HTML.  Created as needed.")
 		parser.add_argument("--just-blasts", dest="justBlasts", action="store_true", default=False,
 									help="just generate pdfs for email blasts")
 
@@ -280,7 +303,8 @@ class Main:
 				kwargs = {
 					'spec': spec,
 					'salsa': self.salsa,
-					'dir': self.args.dir,
+					'pdfs': self.args.pdfs,
+					'html': self.args.html,
 					'key': key
 				}
 				page = OnePage(**kwargs)
@@ -349,6 +373,13 @@ def main():
 			'table': "unsubscribe_page",
 			'titleField': "Title",
 			'keyField': "unsubscribe_page_KEY",
+			'dateField': "Date_Created"
+		}),
+		Spec(**{
+			'url': "http://{host}/o/{organization_KEY}/p/salsa/web/blog/public/index.sjs?blog_entry_KEY={key}",
+			'table': "blog_entry",
+			'titleField': "Title",
+			'keyField': "blog_entry_KEY",
 			'dateField': "Date_Created"
 		})
 	]
