@@ -380,7 +380,7 @@ def main():
 			'table': "blog_entry",
 			'titleField': "Title",
 			'keyField': "blog_entry_KEY",
-			'dateField': "Date_Created"
+			'dateField': "Display_Date"
 		})
 	]
 
