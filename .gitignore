@@ -47,6 +47,11 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
+# Configuration and app output.
+*.yaml
+html/
+pdfs/
+
 # Translations
 *.mo
 *.pot
