@@ -9,4 +9,4 @@ pdfkit==0.6.1
 PyYAML==4.2b4
 requests==2.21.0
 soupsieve==1.7.3
-urllib3==1.24.1
+urllib3==1.24.2
