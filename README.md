@@ -39,10 +39,10 @@ of a Classic targeted action workflow.)
 
 * Time passes, systems change, domains are created and removed.
 
-    That means that it's entirely possible that an image or script used in one of your
-pages or blasts may have disappeared completely.  When that happens, this app
-just ignores any errors and continues. You'll get the text and whatever
-images can be found.
+  That means that it's entirely possible that an image or script used in one of your
+  pages or blasts may have disappeared completely.  When that happens, this app
+  just ignores any errors and continues. You'll get the text and whatever
+  images can be found.
 
 * This app does not run scripts.
 
@@ -73,15 +73,15 @@ that repository.  Please [click here](https://git-scm.com/book/en/v2/Getting-Sta
 ### wkhtmltopdf
 The application uses `wkhtmltopdf` to convert HTML into PDFs.  [Click here](https://wkhtmltopdf.org/) to download the wkhtmltopdf application.
 
-It's a snap to install in Windows or Linux. OSX? Not that easy.
+It's a snap to install in Windows or Linux.
 
-You'll need to read [OSX: About Gatekeeper](https://support.apple.com/en-us/HT202491). See the section named "How to open an app from a unidentified developer and exempt it from Gatekeeper". Use the instructions on the wkhtmltopdf package file. Right click on the package file and follow the instructions.
+OSX? Not that easy.  You'll need to read [OSX: About Gatekeeper](https://support.apple.com/en-us/HT202491). See the section named "How to open an app from a unidentified developer and exempt it from Gatekeeper". Use the instructions on the wkhtmltopdf package file. Right click on the package file and follow the instructions.
 
 ### Warning
 
 **Do not contact Salsalabs Support for help with installing any of this stuff.**  Salsa is not in that business. There are tons of very good sites out there that you can use for help with getting the prequisites installed.
 
-## installation
+## Installation
 
 This installation works best in a shell environment.  Typically, that's `bash`.  The rough equivalent in Windows is a terminal window.
 
@@ -146,7 +146,7 @@ cd SOMEWHERE/classic_pdfs
 source ./bin/activate
 python3 pages.py --help
 
-usage: pages.py [-h] [--login LOGINFILE] [--dir DIR] [--just-blasts]
+usage: pages.py [-h] [--login LOGINFILE] [--dir DIR]
 
 Find public facing pages and write them as PDFs
 
@@ -154,19 +154,34 @@ optional arguments:
   -h, --help         show this help message and exit
   --login LOGINFILE  YAML file with login credentials
   --dir DIR          directory to store PDFs. Created as needed
-  --just-blasts      just generate pdfs for email blasts
   ```
 
 ## Command-line options
 
 #### `--login LOGINFILE`
 
-LOGINFILE is a YAML-formatted file that contains Salsa Classic API credentials.  Here's a sample:
+LOGINFILE is a YAML-formatted file that contains Salsa Classic API credentials.  It also contains
+the list of database tables that you'd like to use for printing.  Here's a sample:
 
 ```yaml
 host: salsa4.salsalabs.com
 email: your_name@your_org.com
 password: cheeseburger_with_fries
+pages:
+#    - action
+#    - content_item
+     - donate_page
+     - email_blast
+#    - event
+#    - signup_page
+#    - storefront
+#    - unsubscribe_page
+#    - blog_entry
+
+The pound sign (#) at the beginning of a line means "skip this line".  The sample
+YAML file only wants to print donation pages and email blasts.  Add or remove
+pound signs as you see fit to get the PDFs that you want.
+
 ```
 
 The credentials are passed to Classic API authentication.  You canlearn more about authentication by [clicking here](https://help.salsalabs.com/hc/en-us/articles/115000341773-Salsa-Application-Program-Interface-API-#authenticatesjs).
@@ -187,10 +202,6 @@ DIR
 ```
 
 The default value for DIR is `./pdfs`.  The app creates all directories that it needs if they do not already exist.
-
-### --just-blasts
-
-If this open is provided, then the app only processes email blasts.  The default behavior is to create PDFs for all pages.
 
 ## Sample Output
 
@@ -252,6 +263,7 @@ Is changed to
 when the `host` value from the login credentials is `salsa4.salsalabas.com`.
 
 The result is a combination of fewer errors and better looking PDFs.
+
 # Questions?  Comments?
 
 For best results, uses the web to look up any problems that you may run into.  Support for questions will be spotty at best, and non-existent during the busy parts of the year for non-profits.

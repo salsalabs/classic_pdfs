@@ -1,4 +1,4 @@
-"""App to retrieve the URLs for  Salsa classic public-facing pages then write
+"""App to retrieve the URLs for Salsa classic public-facing pages then write
 them to disk as PDFs.  Note that this app cannot handle targeted or multi-content
 targeted actions."""
 
@@ -8,7 +8,9 @@ import json
 import os
 import pdfkit
 import re
+import sys
 import requests
+import urllib.parse
 import yaml
 
 from bs4 import BeautifulSoup
@@ -17,7 +19,7 @@ from pathlib import Path
 # The PDF app, wkhtml2pdf, uses these options to format from HTML,
 # Global to make it easy to make changes.  Used in OnePage.run().
 wkhtml2pdfOptions = {
-    'page-size': 'Letter',
+    'page-size': 'Legal',
     'margin-top': '0.50in',
     'margin-right': '0.50in',
     'margin-bottom': '0.50in',
@@ -86,7 +88,7 @@ class OnePage:
 		"""Fabricate a filename using the page spec and a record
 		from the API.  The filename should end up containing a date,
 		a primary key and the page title or blast subject."""
-		return self.getFilename(self.html, record, '.html')
+		return self.getFilename(self.html, record, 'html')
 
 	def getPdfFilename(self, record):
 		"""Fabricate a filename using the page spec and a record
@@ -106,7 +108,7 @@ class OnePage:
 				date = self.parse_date(record[self.spec.dateField])
 				k = f" {self.key}"
 		pattern = re.compile("[^A-Za-z0-9\\s]")
-		x = pattern.sub('', record[self.spec.titleField], 0)
+		x = pattern.sub('', record[self.spec.titleField], 0).strip()
 		x = Path(dir).joinpath(self.spec.table, f"{date}{k} {x}.{ext}")
 		return str(x)
 
@@ -122,16 +124,11 @@ class OnePage:
 
 	def run(self):
 		"""Execute `wkhtml2pdf` using a buffer and a filename.  The buffer contains
-		the page contents with modifications to correct old and dead Salsa domains. 
+		the page contents with modifications to correct old and dead Salsa domains.
 		wkhtml2pdf errors are ignored.  Internal errors are noisily fatal."""
 
 		record = self.salsa.getRecord(self.spec, self.key)
 		print(self.url)
-		pdf = self.getPdfFilename(record)
-		if os.path.isfile(pdf):
-			print(f"{self.url} skipped")
-			return
-		self.assureDir(pdf)
 
 		resp = requests.get(self.url)
 		soup = BeautifulSoup(resp.text, 'html.parser')
@@ -143,24 +140,35 @@ class OnePage:
 					x = self.scrub(v)
 					if x != v:
 						link.attrs[k] = x
-		
+
 		html = self.getHtmlFilename(record)
 		self.assureDir(html)
 		with open(html, 'w') as f:
 			f.write(str(soup))
 			f.close()
+
+		pdf = self.getPdfFilename(record)
+		if os.path.isfile(pdf):
+			print(f"{self.url} skipped")
+			return
+		self.assureDir(pdf)
+
 		try:
-			pdfkit.from_string(str(soup), f, wkhtml2pdfOptions)
+			pdfkit.from_string(str(soup), pdf, wkhtml2pdfOptions)
 		except:
+			# print("Unexpected error:", sys.exc_info()[0])
+			# raise
 			pass
+		return
 
 	def scrub(self, v):
 		""" Replace old and dead domains with current domains and return the result."""
-
+		host = f"https://{self.salsa.host}"
 		v = v.replace('org2.democracyinaction.org', 'org2.salsalabs.com')
 		v = v.replace('salsa.democracyinaction.org','org.salsalabs.com')
 		v = v.replace('hq.demaction.org','org.salsalabs.com')
 		v = v.replace('cid:', 'https:')
+		v = urllib.parse.urljoin(host, v)
 		v = re.sub('^/salsa', f"https://{self.salsa.host}/salsa", v)
 		v = re.sub('^/o/', f"https://{self.salsa.host}/o/", v)
 		v = re.sub('^/dia/', f"https://{self.salsa.host}/dia/", v)
@@ -275,27 +283,25 @@ class Main:
 
 		parser = argparse.ArgumentParser(description='Find public facing pages and write them as PDFs')
 		parser.add_argument('--login', dest='loginFile', action='store',
-									help='YAML file with login credentials')
+									help='YAML file with login credentials and list of pages to process')
 		parser.add_argument('--pdfs', dest='pdfs', action="store", default="./pdfs",
 									help="directory to store PDFs.  Created as needed.")
 		parser.add_argument('--html', dest='html', action="store", default="./html",
 									help="directory to store HTML.  Created as needed.")
-		parser.add_argument("--just-blasts", dest="justBlasts", action="store_true", default=False,
-									help="just generate pdfs for email blasts")
 
 		self.args = parser.parse_args()
 		if self.args.loginFile == None:
 			print("Error: --login is REQUIRED.")
 			exit(1)
-		cred = yaml.load(open(self.args.loginFile))
-		self.salsa = Salsa(cred)
+		self.cred = yaml.load(open(self.args.loginFile))
+		self.salsa = Salsa(self.cred)
 
 	def run(self):
 		"""Main authenticates with Salsa and then calls the methods to
 		find and "print" pages."""
 
-		if self.args.justBlasts:
-			self.specList = [ spec for spec in self.specList if spec.table == "email_blast"]
+		# Filter down to the tables int the credentials file.
+		self.specList = [ spec for spec in self.specList if spec.table in self.cred['pages']]
 		for spec in self.specList:
 			keys = self.salsa.readKeys(spec)
 			for key in keys:
@@ -317,12 +323,12 @@ def main():
 		# * thank_you
 
 		Spec(**{
-			'url': "http://{host}/o/{organization_KEY}/p/dia/action4/common/public/?action_KEY={key}",
-			'table': "action",
-			'titleField': "Reference_Name",
-			'keyField': "action_KEY",
-			'dateField': "Date_Created"
-		}),
+		 	'url': "http://{host}/o/{organization_KEY}/p/dia/action4/common/public/?action_KEY={key}",
+		 	'table': "action",
+		 	'titleField': "Reference_Name",
+		 	'keyField': "action_KEY",
+		 	'dateField': "Date_Created"
+		 }),
 		Spec(**{
 			'url': "http://{host}/o/{organization_KEY}/p/salsa/web/common/public/content?content_item_KEY={key}",
 			'table': "content_item",
@@ -339,11 +345,11 @@ def main():
 		}),
 		Spec(**{
 			'url': "https://{host}/o/{organization_KEY}/t/0/blastContent.jsp?email_blast_KEY={key}",
-			'table': "email_blast",
-			'titleField': "Subject",
-			'keyField': "email_blast_KEY",
-			'dateField': "Date_Created"
-		}),
+		 	'table': "email_blast",
+		 	'titleField': "Subject",
+		 	'keyField': "email_blast_KEY",
+		 	'dateField': "Date_Created"
+		 }),
 		Spec(**{
 			'url': "https://{host}/o/{organization_KEY}/p/salsa/event/common/public/?event_KEY={key}",
 			'table': "event",
