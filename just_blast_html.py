@@ -7,14 +7,16 @@ not have any images."""
 import argparse
 import datetime
 import os
+import queue
 import re
 import requests
+import threading
+import time
 import yaml
 
 from bs4 import BeautifulSoup
 from pathlib import Path
 from urllib.parse import urljoin
-
 
 class Spec:
 	"""Accessory class to define a public-facing page type in Salsa.  The
@@ -35,28 +37,25 @@ class Spec:
 		"""String/dump representation of this class. """
 		return f"Spec({self.url!r}, {self.table!r}, {self.titleField!r}, {self.keyField!r}, {self.dateField!r})"
 
-class OnePage:
+class OnePage(threading.Thread):
 	"""Class to process a single page."""
 
-	def __init__(self, **kwargs):
+	def __init__(self, taskName, taskQueue, queueLock):
 		""" Initialize an instance of OnePage.  The keyword arguments are
 		spec:         instance of Spec. Defines the database parts.
 		salsa:        instance of Salsa.  Defines how to get to Salsa.
 		key:          primary key for the page
 		html:	      directory to use for storing htmls
 		"""
-
-		self.__dict__.update(kwargs)
-		args = {
-			'host': self.salsa.host,
-			'organization_KEY': self.salsa.orgKey,
-			'key': self.key
-		}
-		self.url = self.spec.url.format(**args)
+		threading.Thread.__init__(self)
+		self.taskName = taskName
+		self.taskQueue = taskQueue
+		self.queueLock = queueLock
+		self.exitFlag = 0
 
 	def __repr__(self):
 		"""String/dump representation of this class. """
-		return f"OnePage({self.spec}, {self.salsa}, {self.key}, {self.url})"
+		return f"OnePage:{self.taskName}({self.spec}, {self.salsa}, {self.key}, {self.url})"
 
 	def assureDir(self, filename):
 		""" Make sure that the directory exists for the provided filename. """
@@ -95,10 +94,28 @@ class OnePage:
 		return'{0:%Y-%m-%d}'.format(t)
 
 	def run(self):
-		"""Create and print HTML for the email blast with `key`."""
+		"""Process a queue of email_blast_KEYs. Create and print HTML for each key."""
+		while not self.exitFlag:
+			self.queueLock.acquire()
+			if self.taskQueue.empty():
+				self.queueLock.release()
+				time.sleep(0.25)
+			else:
+				task = self.taskQueue.get()
+				self.queueLock.release()
+				self.handleTask(task)
 	
+	def handleTask(self, task):
+		"""Process a task."""
+		self.__dict__.update(task)
+
 		record = self.salsa.getRecord(self.spec, self.key)
-		print(self.url)
+		args = {
+			'host': self.salsa.host,
+			'organization_KEY': self.salsa.orgKey,
+			'key': self.key
+		}
+		self.url = self.spec.url.format(**args)
 
 		resp = requests.get(self.url)
 		soup = BeautifulSoup(resp.text, 'html.parser')
@@ -115,6 +132,7 @@ class OnePage:
 		self.assureDir(html)
 		with open(html, 'w') as f:
 			f.write(str(soup))
+			print(f"{self.taskName} {html}")
 			f.close()
 
 	def scrub(self, v):
@@ -160,7 +178,7 @@ class Salsa:
 		"""String/dump representation of this class. """
 		return f"Salsa({self.host!r}, {self.email!r}, {self.orgKey}, {self.orgName})"
 
-	def readKeys(self, spec):
+	def readKeys(self, startHere, spec):
 		"""Use the provided spec to read all of the primary keys
 		for a table. Returns a list of primary keys."""
 
@@ -229,10 +247,6 @@ class Main:
 	"""Mainline application.  Does the work.  Dies a noisy death on errors."""
 
 	def __init__(self):
-		"""Argument descriptions:
-
-		self: Instance variable
-		"""
 
 		# Get command-line arguments.  Errors are fatal.
 
@@ -246,8 +260,8 @@ class Main:
 		if self.args.loginFile == None:
 			print("Error: --login is REQUIRED.")
 			exit(1)
-		self.cred = yaml.load(open(self.args.loginFile))
-		self.salsa = Salsa(self.cred)
+		cred = yaml.load(open(self.args.loginFile))
+		self.salsa = Salsa(cred)
 		self.spec = Spec(**{
 			'url': "https://{host}/o/{organization_KEY}/t/0/blastContent.jsp?email_blast_KEY={key}",
 		 	'table': "email_blast",
@@ -256,23 +270,39 @@ class Main:
 		 	'dateField': "Date_Created"
 		 })
 
-	def run(self):
-		"""Main authenticates with Salsa and then calls this method to
-		find and save pages."""
+		threadCount = 10
+		taskQueue = queue.Queue()
+		queueLock = threading.Lock()
+
+		queueLock.acquire()
+		self.fill(taskQueue)
+		queueLock.release()		
+
+		threads = [OnePage(f"Task-{(i+1):02}", taskQueue, queueLock) for i in range(0, threadCount)]
+		[t.start() for t in threads]
+		while not taskQueue.empty():
+			pass
+
+		[t.exitFlag = 1 for t in threads]
+		[t.join() for t in threads]
+		print("Done!")
+
+	def fill(self, taskQueue):
+		""" Read all blast keys and fill the queue with tasks for each key. """
 
 		keys = self.salsa.readKeys(self.spec)
+		print(f"Found {len(keys)} completed email blasts.")
 		for key in keys:
-			kwargs = {
+			task = {
 				'spec': self.spec,
 				'salsa': self.salsa,
 				'html': self.args.html,
 				'key': key
 			}
-			task = OnePage(**kwargs)
-			task.run()
+			taskQueue.put(task)
 
 def main():
-	Main().run()
+	Main()
 
 if __name__ == "__main__":
 	main()
