@@ -146,6 +146,8 @@ class OnePage:
 		with open(html, 'w') as f:
 			f.write(str(soup))
 			f.close()
+		if self.htmlOnly:
+			return
 
 		pdf = self.getPdfFilename(record)
 		if os.path.isfile(pdf):
@@ -288,6 +290,8 @@ class Main:
 									help="directory to store PDFs.  Created as needed.")
 		parser.add_argument('--html', dest='html', action="store", default="./html",
 									help="directory to store HTML.  Created as needed.")
+		parser.add_argument('--html-only', dest="htmlOnly", action="store_true",
+									help="Only write HTML.  Do not write PDFs")
 
 		self.args = parser.parse_args()
 		if self.args.loginFile == None:
@@ -310,6 +314,7 @@ class Main:
 					'salsa': self.salsa,
 					'pdfs': self.args.pdfs,
 					'html': self.args.html,
+					'htmlOnly': self.args.htmlOnly,
 					'key': key
 				}
 				task = OnePage(**kwargs)
