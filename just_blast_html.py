@@ -99,7 +99,7 @@ class OnePage(threading.Thread):
 			self.queueLock.acquire()
 			if self.taskQueue.empty():
 				self.queueLock.release()
-				time.sleep(0.25)
+				time.sleep(1)
 			else:
 				task = self.taskQueue.get()
 				self.queueLock.release()
@@ -151,6 +151,9 @@ class OnePage(threading.Thread):
 		v = v.replace('#', '%23')
 		return v
 
+	def setExitFlag(self):
+		"""Sets the exit flag.  This task will exit at the next pass."""
+		self.exitFlag = 1
 class Salsa:
 	""" Class to do Salsa API things. """
 
@@ -178,7 +181,7 @@ class Salsa:
 		"""String/dump representation of this class. """
 		return f"Salsa({self.host!r}, {self.email!r}, {self.orgKey}, {self.orgName})"
 
-	def readKeys(self, startHere, spec):
+	def readKeys(self, spec):
 		"""Use the provided spec to read all of the primary keys
 		for a table. Returns a list of primary keys."""
 
@@ -283,7 +286,7 @@ class Main:
 		while not taskQueue.empty():
 			pass
 
-		[t.exitFlag = 1 for t in threads]
+		[t.setExitFlag() for t in threads]
 		[t.join() for t in threads]
 		print("Done!")
 
